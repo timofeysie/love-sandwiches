@@ -14,7 +14,7 @@ The learning outcomes for the project are:
 * set up a Google Sheets API to send and receive data to an external application
 * refactor code to streamline your projects and reduce repetition
 
-## 
+## Connecting to the GCP API with Python
 
 The steps include using pip3 to install packages:
 
@@ -77,19 +77,31 @@ data = sales.get_all_values()
 print(data)
 ```
 
-## Original README
+## Program Structure
 
-![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
+The stock worksheet has one more line of data in it than the sales and surplus ones.  The app needs to first get the days sales data.
 
-Welcome,
+The high level overview of what is being built looks like this:
 
-This is the Code Institute student template for deploying your third portfolio project, the Python command-line project. The last update to this file was: **May 14, 2024**
+* request the  market day sales data from our user,
+* check if the data provided is valid (if it isn’t, request the data again)
+* add our sales data to the sales worksheet
+* calculate and update the surplus data
+* calculate the sales averages and  make our stock recommendations
+
+## Validating user input
+
+A *list comprehension* is used to loop through the values and convert the strings into integers like this:
+
+```py
+[int(value) for value in values]
+```
 
 ## Reminders
 
-- Your code must be placed in the `run.py` file
-- Your dependencies must be placed in the `requirements.txt` file
-- Do not edit any of the other files or your code may not deploy properly
+* Your code must be placed in the `run.py` file
+* Your dependencies must be placed in the `requirements.txt` file
+* Do not edit any of the other files or your code may not deploy properly
 
 ## Creating the Heroku app
 
