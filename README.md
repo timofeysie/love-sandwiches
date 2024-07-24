@@ -14,6 +14,69 @@ The learning outcomes for the project are:
 * set up a Google Sheets API to send and receive data to an external application
 * refactor code to streamline your projects and reduce repetition
 
+## 
+
+The steps include using pip3 to install packages:
+
+```sh
+pip3 install gspread google-auth
+```
+
+I usually just use pip, but have also used the venv method to install packages.
+
+```sh
+python --version
+Python 3.10.11
+pip install gspread google-auth
+```
+
+The [venv](https://realpython.com/python-virtual-environments-a-primer/) tool version looks something like this:
+
+```sh
+PS> python -m venv venv
+PS> venv\Scripts\activate
+… install with pip
+(venv) PS> deactivate
+PS>
+```
+
+Those commands are all specific to the operating system and shell being used.
+
+In case you're wondering, this tool is used to create and manage separate virtual environments for your Python projects. Each environment can use different versions of package dependencies and Python.
+
+The libraries being installed are:
+
+* google-auth will use our creds.json file from the Google Cloud project.
+* gspread used to access and update data in our spreadsheet.
+
+The [repo](https://github.com/Code-Institute-Solutions/love-sandwiches-p5-sourcecode/tree/master/01-getting-set-up/02-connecting-oto-our-api-with-python) for this step.
+
+IAM stands for Identity and Access Management. This configuration specifies what the user has access to.
+
+It is used for the credentials in the run.py to access the spreadsheet and print out the data from it like this:
+
+```py
+import gspread
+from google.oauth2.service_account import Credentials
+
+SCOPE = [
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive.file",
+    "https://www.googleapis.com/auth/drive"
+    ]
+
+CREDS = Credentials.from_service_account_file('creds.json')
+SCOPED_CREDS = CREDS.with_scopes(SCOPE)
+GSPREAD_CLIENT = gspread.authorize(SCOPED_CREDS)
+SHEET = GSPREAD_CLIENT.open('love_sandwiches')
+
+sales = SHEET.worksheet('sales')
+
+data = sales.get_all_values()
+
+print(data)
+```
+
 ## Original README
 
 ![CI logo](https://codeinstitute.s3.amazonaws.com/fullstack/ci_logo_small.png)
