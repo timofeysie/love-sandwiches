@@ -192,6 +192,59 @@ def update_surplus_worksheet(data):
     surplus_worksheet.append_row(data)
 ```
 
+This function is then refactored to a shared version and used like this:
+
+```py
+    update_worksheet(sales_data, "sales")
+    new_surplus_data = calculate_surplus_data(sales_data)
+    update_worksheet(new_surplus_data, "surplus")
+```
+
+## Getting sales data & calculating stock averages
+
+The recommended stock numbers for the next market will be calculated using the average number of sandwiches sold in the last 5 markets and increase the result by 10% to encourage more sales.
+
+This time we access a single column by using the col_values() gspread method which takes the column number starting at 1 not 0.
+
+```py
+def get_last_5_entries_sales():
+    sales = SHEET.worksheet("sales")
+
+    columns = []
+    for ind in range(1, 7):                 # from 1 - 6
+        column = sales.col_values(ind)
+        columns.append(column[-5:])         # limit to the last five averages
+                                            # we need a colon to slice multiple values from the list
+    return columns
+```
+
+To calculate the average we use this function:
+
+```py
+def calculate_stock_data(data):
+    """
+    Calculate the average stock for each item type, adding 10%
+    """
+    print("Calculating stock data...\n")
+    new_stock_data = []
+
+    for column in data:
+        int_column = [int(num) for num in column]
+        average = sum(int_column) / len(int_column)
+        stock_num = average * 1.1
+        new_stock_data.append(round(stock_num))
+
+    return new_stock_data
+```
+
+Then use it in the main function like this:
+
+```py
+    sales_columns = get_last_5_entries_sales()
+    stock_data = calculate_stock_data(sales_columns)
+    update_worksheet(stock_data, "stock")
+```
+
 ## Reminders
 
 * Your code must be placed in the `run.py` file
