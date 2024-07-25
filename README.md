@@ -97,6 +97,101 @@ A *list comprehension* is used to loop through the values and convert the string
 [int(value) for value in values]
 ```
 
+The user request loop is a while statement in the ```get_sales_data()``` function which calls the ```validate_data(values)``` function.
+
+```py
+    try:
+        [int(value) for value in values]
+        if len(values) != 6:
+            raise ValueError(
+                f"Exactly 6 values required, you provided {len(values)}"
+            )
+    except ValueError as e:
+        print(f"Invalid data: {e}, please try again.\n")
+        return False
+
+    return True
+```
+
+This try/except block is actually called a try/catch block elsewhere.  I'm not sure why Python had to go it alone on changing catch to except.  I assume there was a good reason.  ChatGPT said: *Python was influenced by several languages, including ABC and Modula-3, which also use except for exception handling* so there you go.
+
+## Updating the sales worksheet
+
+We use the gspread worksheet() method to access the sales worksheet and append_row() and pass it the data to be inserted and add a new row to the end of the data in the worksheet selected:
+
+```py
+    sales_worksheet = SHEET.worksheet("sales")
+    sales_worksheet.append_row(data)
+```
+
+### Requesting stock data from the spreadsheet
+
+Add a main() function and call that at the bottom of the file.
+
+```py
+def main():
+    """
+    Run all program functions
+    """
+    data = get_sales_data()
+    sales_data = [int(num) for num in data]
+    update_sales_worksheet(sales_data)
+```
+
+This is now calling a new update_sales_worksheet(sales_data) with the formatted data from the user input.
+
+The business logic we implement in the update_sales_worksheet() function is as follows:
+
+The numbers of sandwiches made fresh or thrown away is the surplus data.  This data is calculated by taking the stock numbers and subtracting the number of sandwiches sold.
+
+For example:
+
+* If there were 8 egg salad sandwiches in stock, and they sold 10 that day, this  would result in a value of -2 (ie: 2 extra sandwiches were made when stock ran out).
+* If they made stock of 15 egg salad sandwiches but they only sold 10, then the surplus number would be 5 (ie: 5 sandwiches were thrown away at the end of the day).
+
+This is basically done like this:
+
+```py
+def calculate_surplus_data(sales_row):
+    print("Calculating surplus data...\n")
+    stock = SHEET.worksheet("stock").get_all_values()
+    stock_row = stock[-1] # last row in the stock worksheet
+```
+
+The "stock" worksheet is a tab on the spreadsheet with the stock data.
+
+### Calculating Surplus Data
+
+Take each value in each list, and subtract the sales number from the stock number using the Python zip() method and a for loop.
+Put these values in the surplus_data array.
+
+```py
+def calculate_surplus_data(sales_row):
+    stock = SHEET.worksheet("stock").get_all_values()
+    stock_row = stock[-1]
+    
+    surplus_data = []
+    for stock, sales in zip(stock_row, sales_row):
+        surplus = int(stock) - sales
+        surplus_data.append(surplus)
+
+    return surplus_data
+```
+
+As the new stock_row data is still in string format when retrieved from the sheets API, those values are converted with the int function one at a time.
+
+### Updating the surplus worksheet
+
+The update_surplus_worksheet() is pretty much the same as the update_sales_worksheet() function.
+
+Get the surplus worksheet and append the row from the data argument:
+
+```py
+def update_surplus_worksheet(data):
+    surplus_worksheet = SHEET.worksheet("surplus")
+    surplus_worksheet.append_row(data)
+```
+
 ## Reminders
 
 * Your code must be placed in the `run.py` file
